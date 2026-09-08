@@ -31,15 +31,17 @@ document.body.appendChild(scratchLayer);
 
 function resizeScratchLayer() {
 	const pixelRatio = window.devicePixelRatio || 1;
+	const pageWidth = document.documentElement.scrollWidth;
+	const pageHeight = document.documentElement.scrollHeight;
 
-	scratchLayer.width = window.innerWidth * pixelRatio;
-	scratchLayer.height = window.innerHeight * pixelRatio;
-	scratchLayer.style.width = `${window.innerWidth}px`;
-	scratchLayer.style.height = `${window.innerHeight}px`;
+	scratchLayer.width = pageWidth * pixelRatio;
+	scratchLayer.height = pageHeight * pixelRatio;
+	scratchLayer.style.width = `${pageWidth}px`;
+	scratchLayer.style.height = `${pageHeight}px`;
 	scratchContext.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
 	scratchContext.globalCompositeOperation = "source-over";
 	scratchContext.fillStyle = "rgba(0, 0, 0, 0.97)";
-	scratchContext.fillRect(0, 0, window.innerWidth, window.innerHeight);
+	scratchContext.fillRect(0, 0, pageWidth, pageHeight);
 }
 
 function scratchAt(x, y) {
@@ -66,5 +68,5 @@ function scratchAt(x, y) {
 resizeScratchLayer();
 window.addEventListener("resize", resizeScratchLayer);
 window.addEventListener("pointermove", (event) => {
-	scratchAt(event.clientX, event.clientY);
+	scratchAt(event.clientX + window.scrollX, event.clientY + window.scrollY);
 });
