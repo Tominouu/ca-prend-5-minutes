@@ -6,7 +6,15 @@
     <title>Ça prend 5 minutes</title>
     <link rel="stylesheet" href="assets/css/style.css">
 </head>
-<body>
+<body class="rules-open">
+    <div class="rules-modal" id="rules-modal" role="dialog" aria-modal="true" aria-labelledby="rules-title">
+        <div class="rules-card">
+            <h2 id="rules-title">Les règles du jeu</h2>
+            <p>Tu as 5 minutes pour découvrir la page.</p>
+            <p>Gomme la page avec ta souris pour révéler le contenu, puis descends jusqu'en bas et clique sur le <strong>« Lien du film »</strong> avant la fin du chrono.</p>
+            <button id="start-game" type="button">Commencer</button>
+        </div>
+    </div>
     <header>
         <img src="assets/images/logo_pathe.png" alt="Logo de Ça prend 5 minutes" class="logo">
         <div class="timer" id="timer">05:00:000</div>

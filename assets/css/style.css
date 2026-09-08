@@ -21,6 +21,130 @@ body {
    font-family: 'Inter', sans-serif;
    font-size: var(--text-main);
    line-height: 1.35;
+   cursor: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 28 28'%3E%3Cg transform='rotate(-45 14 14)'%3E%3Crect x='8' y='3' width='12' height='22' rx='2' fill='%23f8f8f8' stroke='%23090a0b' stroke-width='2'/%3E%3Cpath d='M8 18h12' stroke='%23ffc400' stroke-width='4'/%3E%3C/g%3E%3C/svg%3E") 14 14, crosshair;
+}
+
+body.rules-open {
+   overflow: hidden;
+}
+
+body.popup-open {
+   overflow: hidden;
+}
+
+.rules-modal {
+   position: fixed;
+   z-index: 20;
+   inset: 0;
+   display: grid;
+   place-items: center;
+   padding: 24px;
+   background: rgba(9, 10, 11, 0.96);
+}
+
+.rules-modal.is-closed {
+   display: none;
+}
+
+.rules-card {
+   width: min(520px, 100%);
+   padding: 38px;
+   border: 3px solid #ffc400;
+   border-radius: 18px;
+   background: #f8f8f8;
+   color: #090a0b;
+   text-align: center;
+}
+
+.rules-card h2 {
+   margin: 0 0 24px;
+   font-size: var(--heading-subsection);
+   line-height: 1;
+}
+
+.rules-card p {
+   margin: 0 0 14px;
+   font-size: var(--text-main);
+   line-height: 1.4;
+}
+
+.rules-card button {
+   margin-top: 16px;
+   padding: 12px 24px;
+   border: 0;
+   border-radius: 8px;
+   background: #ffc400;
+   color: #090a0b;
+   cursor: pointer;
+   font: inherit;
+   font-weight: 700;
+}
+
+.random-popup-layer {
+   position: fixed;
+   z-index: 19;
+   inset: 0;
+   display: none;
+   place-items: center;
+   padding: 24px;
+   background: rgba(9, 10, 11, 0.88);
+}
+
+.random-popup-layer.is-visible {
+   display: grid;
+}
+
+.random-popup-image {
+   display: block;
+   width: min(420px, 80vw);
+   max-height: 72vh;
+   border-radius: 18px;
+   background: #f8f8f8;
+   cursor: pointer;
+   object-fit: contain;
+}
+
+.cinema-blocked-popup {
+   position: fixed;
+   z-index: 18;
+   inset: 0;
+   display: grid;
+   place-items: center;
+   padding: 24px;
+   background: rgba(9, 10, 11, 0.86);
+}
+
+.cinema-blocked-popup > div {
+   width: min(420px, 100%);
+   padding: 30px;
+   border-radius: 16px;
+   background: #f8f8f8;
+   color: #090a0b;
+   text-align: center;
+}
+
+.cinema-blocked-popup strong {
+   font-size: var(--heading-subsection);
+}
+
+.cinema-blocked-popup p {
+   margin: 16px 0 22px;
+   font-size: var(--text-main);
+}
+
+.cinema-blocked-popup button {
+   padding: 10px 18px;
+   border: 0;
+   border-radius: 8px;
+   background: #ffc400;
+   color: #090a0b;
+   cursor: pointer;
+   font: inherit;
+   font-weight: 700;
+}
+
+.game-complete .film-link {
+   color: #ffc400;
 }
 
 header {

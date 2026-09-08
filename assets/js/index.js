@@ -1,8 +1,20 @@
 const timerElement = document.getElementById("timer");
 const durationInMilliseconds = 5 * 60 * 1000;
-const startTime = Date.now();
+const rulesModal = document.getElementById("rules-modal");
+const startGameButton = document.getElementById("start-game");
+const filmLink = document.querySelector(".film-link");
+let startTime = null;
+let gameStarted = false;
+let popupOpen = false;
+let lastScratchPoint = null;
+let progressCheckFrame = null;
 
 function updateTimer() {
+	if (!gameStarted) {
+		timerElement.textContent = "05:00:000";
+		return true;
+	}
+
 	const elapsedTime = Date.now() - startTime;
 	const remainingTime = Math.max(0, durationInMilliseconds - elapsedTime);
 	const minutes = Math.floor(remainingTime / 60000);
@@ -22,9 +34,27 @@ const timerInterval = setInterval(() => {
 	}
 }, 10);
 
+startGameButton.addEventListener("click", () => {
+	startTime = Date.now();
+	gameStarted = true;
+	rulesModal.classList.add("is-closed");
+	document.body.classList.remove("rules-open");
+	schedulePopup(5000);
+});
+
+filmLink.addEventListener("click", () => {
+	if (gameStarted) {
+		document.body.classList.add("game-complete");
+	}
+});
+
 const scratchLayer = document.createElement("canvas");
-const scratchContext = scratchLayer.getContext("2d");
-const scratchRadius = 72;
+const scratchContext = scratchLayer.getContext("2d", { willReadFrequently: true });
+const scratchRadius = 44;
+const cinemaSection = document.querySelector(".cinema-section");
+const cinemaClearThreshold = 0.94;
+let cinemaSectionCleared = false;
+let blockedPopup;
 
 scratchLayer.className = "scratch-layer";
 document.body.appendChild(scratchLayer);
@@ -45,6 +75,10 @@ function resizeScratchLayer() {
 }
 
 function scratchAt(x, y) {
+	if (!gameStarted || popupOpen) {
+		return;
+	}
+
 	const light = scratchContext.createRadialGradient(
 		x,
 		y,
@@ -65,10 +99,188 @@ function scratchAt(x, y) {
 	scratchContext.fill();
 }
 
+function scratchStroke(x, y) {
+	if (!gameStarted || popupOpen) {
+		return;
+	}
+
+	if (!lastScratchPoint) {
+		scratchAt(x, y);
+		lastScratchPoint = { x, y };
+		return;
+	}
+
+	const distance = Math.hypot(x - lastScratchPoint.x, y - lastScratchPoint.y);
+	const step = Math.max(8, scratchRadius / 3);
+	const pointCount = Math.ceil(distance / step);
+
+	for (let index = 1; index <= pointCount; index += 1) {
+		const progress = index / pointCount;
+		scratchAt(
+			lastScratchPoint.x + (x - lastScratchPoint.x) * progress,
+			lastScratchPoint.y + (y - lastScratchPoint.y) * progress
+		);
+	}
+
+	lastScratchPoint = { x, y };
+}
+
+function getCinemaSectionBounds() {
+	const sectionRect = cinemaSection.getBoundingClientRect();
+	const pageWidth = document.documentElement.scrollWidth;
+	const pageHeight = document.documentElement.scrollHeight;
+
+	return {
+		left: Math.max(0, Math.floor(sectionRect.left + window.scrollX)),
+		top: Math.max(0, Math.floor(sectionRect.top + window.scrollY)),
+		right: Math.min(pageWidth, Math.ceil(sectionRect.right + window.scrollX)),
+		bottom: Math.min(pageHeight, Math.ceil(sectionRect.bottom + window.scrollY))
+	};
+}
+
+function isCinemaSectionCleared() {
+	const bounds = getCinemaSectionBounds();
+	const sampleStep = 18;
+	const pixelRatio = window.devicePixelRatio || 1;
+	const width = Math.max(1, Math.ceil((bounds.right - bounds.left) * pixelRatio));
+	const height = Math.max(1, Math.ceil((bounds.bottom - bounds.top) * pixelRatio));
+	const pixels = scratchContext.getImageData(
+		bounds.left * pixelRatio,
+		bounds.top * pixelRatio,
+		width,
+		height
+	).data;
+	let totalSamples = 0;
+	let clearedSamples = 0;
+
+	for (let y = 0; y < height; y += sampleStep * pixelRatio) {
+		for (let x = 0; x < width; x += sampleStep * pixelRatio) {
+			const pixelIndex = (Math.floor(y) * width + Math.floor(x)) * 4;
+			totalSamples += 1;
+
+			if (pixels[pixelIndex + 3] < 64) {
+				clearedSamples += 1;
+			}
+		}
+	}
+
+	return totalSamples > 0 && clearedSamples / totalSamples >= cinemaClearThreshold;
+}
+
+function showCinemaBlockedPopup() {
+	if (blockedPopup) {
+		return;
+	}
+
+	blockedPopup = document.createElement("div");
+	blockedPopup.className = "cinema-blocked-popup";
+	blockedPopup.innerHTML = "<div><strong>Section bloquée</strong><p>Gomme presque toute la section de la carte pour continuer.</p><button type=\"button\">J'ai compris</button></div>";
+	document.body.appendChild(blockedPopup);
+	document.body.classList.add("popup-open");
+	blockedPopup.querySelector("button").addEventListener("click", () => {
+		blockedPopup.remove();
+		blockedPopup = null;
+		document.body.classList.remove("popup-open");
+	});
+}
+
+function updateCinemaProgress() {
+	if (!cinemaSectionCleared && isCinemaSectionCleared()) {
+		cinemaSectionCleared = true;
+	}
+}
+
+function requestProgressCheck() {
+	if (progressCheckFrame || popupOpen || cinemaSectionCleared) {
+		return;
+	}
+
+	progressCheckFrame = requestAnimationFrame(() => {
+		progressCheckFrame = null;
+		updateCinemaProgress();
+	});
+}
+
 resizeScratchLayer();
 window.addEventListener("resize", resizeScratchLayer);
 window.addEventListener("pointermove", (event) => {
-	scratchAt(event.clientX + window.scrollX, event.clientY + window.scrollY);
+	scratchStroke(event.clientX + window.scrollX, event.clientY + window.scrollY);
+	requestProgressCheck();
+});
+
+function getCinemaScrollLimit() {
+	const sectionRect = cinemaSection.getBoundingClientRect();
+	return Math.max(0, sectionRect.top + window.scrollY + sectionRect.height - window.innerHeight);
+}
+
+window.addEventListener("scroll", () => {
+	if (!gameStarted || cinemaSectionCleared || document.body.classList.contains("popup-open")) {
+		return;
+	}
+
+	const scrollLimit = getCinemaScrollLimit();
+	if (window.scrollY > scrollLimit) {
+		window.scrollTo(0, scrollLimit);
+		showCinemaBlockedPopup();
+	}
+});
+
+const popupImages = [
+	"cine.png",
+	"coca.png",
+	"cookies.png",
+	"creative_cloud.png",
+	"discord.png",
+	"disney.png",
+	"Group 16.png",
+	"Group 17.png",
+	"Group 18.png",
+	"Group 19.png",
+	"heineken.png",
+	"mcdo.png",
+	"miel_pops.png",
+	"netflix.png",
+	"x.png"
+].sort(() => Math.random() - 0.5);
+let popupIndex = 0;
+let popupTimer;
+
+const popupLayer = document.createElement("div");
+popupLayer.className = "random-popup-layer";
+popupLayer.innerHTML = "<img class=\"random-popup-image\" alt=\"Message\">";
+document.body.appendChild(popupLayer);
+const popupImage = popupLayer.querySelector(".random-popup-image");
+
+function showNextPopup() {
+	if (!gameStarted || popupIndex >= popupImages.length) {
+		return;
+	}
+
+	popupOpen = true;
+	lastScratchPoint = null;
+	document.body.classList.add("popup-open");
+	popupImage.src = `assets/images/popup/${encodeURIComponent(popupImages[popupIndex])}`;
+	popupIndex += 1;
+	popupLayer.classList.add("is-visible");
+}
+
+function schedulePopup(delay) {
+	clearTimeout(popupTimer);
+	popupTimer = setTimeout(showNextPopup, delay);
+}
+
+popupImage.addEventListener("click", () => {
+	popupOpen = false;
+	lastScratchPoint = null;
+	popupLayer.classList.remove("is-visible");
+	document.body.classList.remove("popup-open");
+
+	if (popupIndex < popupImages.length) {
+		const nextDelay = Math.random() < 0.3
+			? 3000
+			: 4500 + Math.random() * 1000;
+		schedulePopup(nextDelay);
+	}
 });
 
 const mapPreview = document.querySelector(".map-preview");
