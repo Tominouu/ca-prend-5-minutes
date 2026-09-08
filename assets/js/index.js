@@ -1,16 +1,18 @@
 const timerElement = document.getElementById("timer");
-const durationInMilliseconds = 5 * 60 * 1000;
+const durationInMilliseconds = 1 * 60 * 1000;
 const rulesModal = document.getElementById("rules-modal");
 const startGameButton = document.getElementById("start-game");
 const filmLink = document.querySelector(".film-link");
+const gameEndScreen = document.getElementById("game-end-screen");
 let startTime = null;
 let gameStarted = false;
+let gameFinished = false;
 let popupOpen = false;
 let lastScratchPoint = null;
 let progressCheckFrame = null;
 
 function updateTimer() {
-	if (!gameStarted) {
+	if (!gameStarted || gameFinished) {
 		timerElement.textContent = "05:00:000";
 		return true;
 	}
@@ -23,7 +25,12 @@ function updateTimer() {
 
 	timerElement.textContent = `${String(minutes).padStart(2, "0")}:${String(seconds).padStart(2, "0")}:${String(milliseconds).padStart(3, "0")}`;
 
-	return remainingTime > 0;
+	if (remainingTime === 0) {
+		showTimeoutScreen();
+		return false;
+	}
+
+	return true;
 }
 
 updateTimer();
@@ -42,9 +49,35 @@ startGameButton.addEventListener("click", () => {
 	schedulePopup(5000);
 });
 
-filmLink.addEventListener("click", () => {
-	if (gameStarted) {
-		document.body.classList.add("game-complete");
+function showSuccessPopup() {
+	const successPopup = document.createElement("div");
+	successPopup.className = "game-result-popup";
+	successPopup.innerHTML = "<div><strong>Bravo</strong><p>Tu as trouvé le lien du film avant la fin du chrono.</p><button type=\"button\">Fermer</button></div>";
+	document.body.appendChild(successPopup);
+	document.body.classList.add("popup-open", "game-complete");
+	successPopup.querySelector("button").addEventListener("click", () => {
+		successPopup.remove();
+		document.body.classList.remove("popup-open");
+	});
+}
+
+function showTimeoutScreen() {
+	if (gameFinished) {
+		return;
+	}
+
+	gameFinished = true;
+	gameStarted = false;
+	popupOpen = true;
+	clearTimeout(popupTimer);
+	document.body.classList.add("game-expired");
+	gameEndScreen.classList.add("is-visible");
+}
+
+filmLink.addEventListener("click", (event) => {
+	event.preventDefault();
+	if (gameStarted && !gameFinished) {
+		showSuccessPopup();
 	}
 });
 
@@ -81,7 +114,7 @@ function resizeScratchLayer() {
 }
 
 function scratchAt(x, y) {
-	if (!gameStarted || popupOpen) {
+	if (!gameStarted || gameFinished || popupOpen) {
 		return;
 	}
 

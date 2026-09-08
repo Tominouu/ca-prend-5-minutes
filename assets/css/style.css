@@ -46,6 +46,25 @@ body.popup-open {
    display: none;
 }
 
+.game-end-screen {
+   position: fixed;
+   z-index: 30;
+   inset: 0;
+   display: none;
+   background: #090a0b;
+}
+
+.game-end-screen.is-visible {
+   display: block;
+}
+
+.game-end-screen img {
+   display: block;
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+}
+
 .rules-card {
    width: min(520px, 100%);
    padding: 38px;
@@ -134,6 +153,45 @@ body.popup-open {
 
 .cinema-blocked-popup button {
    padding: 10px 18px;
+   border: 0;
+   border-radius: 8px;
+   background: #ffc400;
+   color: #090a0b;
+   cursor: pointer;
+   font: inherit;
+   font-weight: 700;
+}
+
+.game-result-popup {
+   position: fixed;
+   z-index: 25;
+   inset: 0;
+   display: grid;
+   place-items: center;
+   padding: 24px;
+   background: rgba(9, 10, 11, 0.86);
+}
+
+.game-result-popup > div {
+   width: min(440px, 100%);
+   padding: 34px;
+   border-radius: 16px;
+   background: #f8f8f8;
+   color: #090a0b;
+   text-align: center;
+}
+
+.game-result-popup strong {
+   font-size: var(--heading-subsection);
+}
+
+.game-result-popup p {
+   margin: 16px 0 22px;
+   font-size: var(--text-main);
+}
+
+.game-result-popup button {
+   padding: 10px 20px;
    border: 0;
    border-radius: 8px;
    background: #ffc400;
