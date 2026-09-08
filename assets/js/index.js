@@ -77,3 +77,35 @@ const mapInteractionButton = document.querySelector(".map-interaction-button");
 mapInteractionButton.addEventListener("click", () => {
 	mapPreview.classList.add("is-interactive");
 });
+
+const galleryImage = document.getElementById("gallery-image");
+const galleryImages = [
+	"assets/images/acteur_1.jpg",
+	"assets/images/acteur_2.jpg",
+	"assets/images/acteur_3.jpg",
+	"assets/images/acteur_4.jpg",
+	"assets/images/acteur_5.jpeg",
+	"assets/images/acteur_6.jpg",
+	"assets/images/affiche.jpg"
+];
+let galleryIndex = 0;
+
+function showGalleryImage(step) {
+	galleryIndex = (galleryIndex + step + galleryImages.length) % galleryImages.length;
+	galleryImage.src = galleryImages[galleryIndex];
+}
+
+document.querySelector(".gallery-arrow-left").addEventListener("click", () => {
+	showGalleryImage(-1);
+});
+
+document.querySelector(".gallery-arrow-right").addEventListener("click", () => {
+	showGalleryImage(1);
+});
+
+const makingOfPlayer = document.querySelector(".making-of-player");
+const videoActivateButton = document.querySelector(".video-activate-button");
+
+videoActivateButton.addEventListener("click", () => {
+	makingOfPlayer.classList.add("is-video-active");
+});
