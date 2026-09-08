@@ -411,7 +411,7 @@ const galleryImages = [
   "assets/images/raphael.png",
 	"assets/images/taylor.png",
 	"assets/images/timothee.png",
-	"assets/images/zin.png"
+	"assets/images/zin.jpeg"
 ];
 let galleryIndex = 0;
 const galleryViewed = new Set([galleryIndex]);
