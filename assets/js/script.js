@@ -1,4 +1,5 @@
 const faqItems = document.querySelectorAll(".faq-item");
+const openedFaqItems = new Set();
 
 faqItems.forEach((item) => {
 
@@ -16,6 +17,10 @@ faqItems.forEach((item) => {
         // Ouvre celle qui vient d'être cliquée
         if (!isActive) {
             item.classList.add("active");
+            openedFaqItems.add(item);
+            document.dispatchEvent(new CustomEvent("faq-opened", {
+                detail: { openedCount: openedFaqItems.size }
+            }));
         }
 
     });

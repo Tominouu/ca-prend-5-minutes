@@ -52,9 +52,15 @@ const scratchLayer = document.createElement("canvas");
 const scratchContext = scratchLayer.getContext("2d", { willReadFrequently: true });
 const scratchRadius = 44;
 const cinemaSection = document.querySelector(".cinema-section");
+const faqSection = document.querySelector(".faq-container");
 const cinemaClearThreshold = 0.94;
 let cinemaSectionCleared = false;
 let blockedPopup;
+let galleryBlockedPopup;
+let galleryComplete = false;
+let openedFaqCount = 0;
+let faqPenaltyApplied = false;
+let faqPenaltyPopup;
 
 scratchLayer.className = "scratch-layer";
 document.body.appendChild(scratchLayer);
@@ -184,6 +190,40 @@ function showCinemaBlockedPopup() {
 	});
 }
 
+function showGalleryBlockedPopup() {
+	if (galleryBlockedPopup) {
+		return;
+	}
+
+	galleryBlockedPopup = document.createElement("div");
+	galleryBlockedPopup.className = "cinema-blocked-popup";
+	galleryBlockedPopup.innerHTML = "<div><strong>Galerie bloquée</strong><p>Parcours toutes les images du carrousel avant de continuer.</p><button type=\"button\">J'ai compris</button></div>";
+	document.body.appendChild(galleryBlockedPopup);
+	document.body.classList.add("popup-open");
+	galleryBlockedPopup.querySelector("button").addEventListener("click", () => {
+		galleryBlockedPopup.remove();
+		galleryBlockedPopup = null;
+		document.body.classList.remove("popup-open");
+	});
+}
+
+function showFaqPenaltyPopup() {
+	if (faqPenaltyPopup) {
+		return;
+	}
+
+	faqPenaltyPopup = document.createElement("div");
+	faqPenaltyPopup.className = "cinema-blocked-popup";
+	faqPenaltyPopup.innerHTML = "<div><strong>Pénalité appliquée</strong><p>Tu as dépassé la FAQ sans avoir ouvert les quatre questions. 1 min 30 a été retirée du chrono.</p><button type=\"button\">J'ai compris</button></div>";
+	document.body.appendChild(faqPenaltyPopup);
+	document.body.classList.add("popup-open");
+	faqPenaltyPopup.querySelector("button").addEventListener("click", () => {
+		faqPenaltyPopup.remove();
+		faqPenaltyPopup = null;
+		document.body.classList.remove("popup-open");
+	});
+}
+
 function updateCinemaProgress() {
 	if (!cinemaSectionCleared && isCinemaSectionCleared()) {
 		cinemaSectionCleared = true;
@@ -213,15 +253,46 @@ function getCinemaScrollLimit() {
 	return Math.max(0, sectionRect.top + window.scrollY + sectionRect.height - window.innerHeight);
 }
 
+function getGalleryScrollLimit() {
+	const sectionRect = gallerySection.getBoundingClientRect();
+	return Math.max(0, sectionRect.top + window.scrollY + sectionRect.height - window.innerHeight);
+}
+
+function getFaqScrollTrigger() {
+	const sectionRect = faqSection.getBoundingClientRect();
+	return Math.max(0, sectionRect.bottom + window.scrollY - window.innerHeight);
+}
+
+document.addEventListener("faq-opened", (event) => {
+	openedFaqCount = event.detail.openedCount;
+});
+
 window.addEventListener("scroll", () => {
-	if (!gameStarted || cinemaSectionCleared || document.body.classList.contains("popup-open")) {
+	if (!gameStarted || document.body.classList.contains("popup-open")) {
 		return;
 	}
 
-	const scrollLimit = getCinemaScrollLimit();
-	if (window.scrollY > scrollLimit) {
-		window.scrollTo(0, scrollLimit);
-		showCinemaBlockedPopup();
+	if (!cinemaSectionCleared) {
+		const scrollLimit = getCinemaScrollLimit();
+		if (window.scrollY > scrollLimit) {
+			window.scrollTo(0, scrollLimit);
+			showCinemaBlockedPopup();
+			return;
+		}
+	}
+
+	if (!galleryComplete) {
+		const galleryScrollLimit = getGalleryScrollLimit();
+		if (window.scrollY > galleryScrollLimit) {
+			window.scrollTo(0, galleryScrollLimit);
+			showGalleryBlockedPopup();
+		}
+	}
+
+	if (!faqPenaltyApplied && openedFaqCount < 4 && window.scrollY > getFaqScrollTrigger()) {
+		faqPenaltyApplied = true;
+		startTime -= 90 * 1000;
+		showFaqPenaltyPopup();
 	}
 });
 
@@ -291,6 +362,7 @@ mapInteractionButton.addEventListener("click", () => {
 });
 
 const galleryImage = document.getElementById("gallery-image");
+const gallerySection = document.querySelector(".gallery-section");
 const galleryImages = [
 	"assets/images/acteur_1.jpg",
 	"assets/images/acteur_2.jpg",
@@ -301,10 +373,13 @@ const galleryImages = [
 	"assets/images/affiche.jpg"
 ];
 let galleryIndex = 0;
+const galleryViewed = new Set([galleryIndex]);
 
 function showGalleryImage(step) {
 	galleryIndex = (galleryIndex + step + galleryImages.length) % galleryImages.length;
 	galleryImage.src = galleryImages[galleryIndex];
+	galleryViewed.add(galleryIndex);
+	galleryComplete = galleryViewed.size === galleryImages.length;
 }
 
 document.querySelector(".gallery-arrow-left").addEventListener("click", () => {
