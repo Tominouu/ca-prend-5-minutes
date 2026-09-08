@@ -370,7 +370,15 @@ const galleryImages = [
 	"assets/images/acteur_4.jpg",
 	"assets/images/acteur_5.jpeg",
 	"assets/images/acteur_6.jpg",
-	"assets/images/affiche.jpg"
+	"assets/images/affiche.jpg",
+	"assets/images/affiche.jpg",
+	"assets/images/jean.png",
+	"assets/images/kev.jpg",
+	"assets/images/matt.png",
+  "assets/images/raphael.png",
+	"assets/images/taylor.png",
+	"assets/images/timothee.png",
+	"assets/images/zin.png"
 ];
 let galleryIndex = 0;
 const galleryViewed = new Set([galleryIndex]);
