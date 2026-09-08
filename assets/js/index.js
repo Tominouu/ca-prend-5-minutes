@@ -1,5 +1,5 @@
 const timerElement = document.getElementById("timer");
-const durationInMilliseconds = 1 * 60 * 1000;
+const durationInMilliseconds = 5 * 60 * 1000;
 const rulesModal = document.getElementById("rules-modal");
 const startGameButton = document.getElementById("start-game");
 const filmLink = document.querySelector(".film-link");
