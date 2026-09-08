@@ -1,50 +1,151 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap');
 
-body { 
-   background-color: #090A0B; 
-   font-family:  'Inter', sans-serif;
+* {
+   box-sizing: border-box;
 }
 
-header img {
-   width: 100px;
-   height: auto;
+body {
+   min-height: 100vh;
+   margin: 0;
+   padding: 20px 7.6vw 66px;
+   background-color: #090A0B;
+   color: #f8f8f8;
+   font-family: 'Inter', sans-serif;
 }
 
 header {
    display: flex;
    align-items: center;
    justify-content: space-between;
-   padding: 10px 20px;
+   margin-bottom: 24px;
+}
+
+header img {
+   display: block;
+   width: 100px;
+   height: auto;
 }
 
 .timer {
-   font-size: 24px;
+   position: relative;
+   z-index: 2;
    color: #f8f8f8;
-   margin-right: 20px;
+   font-size: 18px;
+   font-variant-numeric: tabular-nums;
+}
+
+.scratch-layer {
+   position: fixed;
+   z-index: 1;
+   inset: 0;
+   width: 100%;
+   height: 100%;
+   pointer-events: none;
 }
 
 .first-section {
-   padding: 20px;
+   display: flex;
+   align-items: flex-start;
+   justify-content: space-between;
+   gap: 8vw;
+   max-width: 1285px;
+   margin: 0 auto;
+}
+
+.first-section-left {
+   flex: 1 1 auto;
+   min-width: 0;
+   padding-top: 7px;
 }
 
 .first-section h1 {
-    color: #f8f8f8;
-    font-weight: 800;
-    font-size: 66px;
+   margin: 0 0 23px;
+   color: #f8f8f8;
+   font-size: clamp(38px, 4.2vw, 64px);
+   font-weight: 800;
+   line-height: 1.05;
+   letter-spacing: -2px;
 }
 
 .tags {
    display: flex;
+   flex-wrap: wrap;
    gap: 10px;
 }
 
 .tag {
-    background-color: #C6C6C6;
-    color: #090A0B;
-    padding: 5px 10px;
-    border-radius: 10px;
+   padding: 6px 13px 7px;
+   border-radius: 11px;
+   background-color: #c6c6c6;
+   color: #090a0b;
+   font-size: 17px;
+   line-height: 1;
 }
 
 .date-sortie {
-    color: #C6C6C6;
+   margin: 52px 0 34px;
+   color: #f1f1f1;
+   font-size: 24px;
+   line-height: 1.2;
 }
+
+.description {
+   max-width: 590px;
+   margin: 0;
+   color: #f1f1f1;
+   font-size: 24px;
+   line-height: 1.2;
+}
+
+.first-section-right {
+   flex: 0 0 min(35vw, 429px);
+}
+
+.container-affiche {
+   width: 100%;
+   aspect-ratio: 3 / 4;
+   overflow: hidden;
+   border-radius: 44px;
+}
+
+.affiche {
+   display: block;
+   width: 100%;
+   height: 100%;
+   object-fit: cover;
+}
+
+@media (max-width: 800px) {
+   body {
+      padding: 28px 24px 44px;
+   }
+
+   header {
+      margin-bottom: 28px;
+   }
+
+   .first-section {
+      display: block;
+   }
+
+   .first-section h1 {
+      padding-right: 50px;
+      font-size: clamp(36px, 10vw, 54px);
+      letter-spacing: -1px;
+   }
+
+   .date-sortie {
+      margin: 48px 0 28px;
+      font-size: 22px;
+   }
+
+   .description {
+      font-size: 22px;
+   }
+
+   .first-section-right {
+      width: min(100%, 429px);
+      margin: 42px auto 0;
+   }
+}
+
