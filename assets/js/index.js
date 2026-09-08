@@ -70,3 +70,10 @@ window.addEventListener("resize", resizeScratchLayer);
 window.addEventListener("pointermove", (event) => {
 	scratchAt(event.clientX + window.scrollX, event.clientY + window.scrollY);
 });
+
+const mapPreview = document.querySelector(".map-preview");
+const mapInteractionButton = document.querySelector(".map-interaction-button");
+
+mapInteractionButton.addEventListener("click", () => {
+	mapPreview.classList.add("is-interactive");
+});
